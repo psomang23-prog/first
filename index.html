@@ -1,76 +1,211 @@
 <!DOCTYPE html>
 <html lang="mn">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Эхлэл 1 - 몽골어 클릭 사전</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Эхлэл 1 — 몽골어 클릭 사전 (HTML만)</title>
 <style>
-  body { font-family: sans-serif; line-height: 1.8; margin: 15px; padding-bottom: 140px; }
-  .word { cursor: pointer; padding: 2px 4px; border-radius: 4px; }
-  .word:hover { background-color: #eef; }
-  #result { 
-    position: fixed; bottom: 0; left: 0; right: 0; 
-    background: #fff; border-top: 2px solid #ccc; padding: 10px; 
-    box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
+  :root {
+    --bg: #ffffff;
+    --text: #111;
+    --muted: #666;
+    --brand: #3b82f6;
+    --panel: #f8fafc;
   }
-  #buttons a { 
-    display: inline-block; margin: 5px; padding: 6px 10px; 
-    background: #f0f0f0; border-radius: 6px; text-decoration: none; color: #333;
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 16px 16px 140px;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", "Apple SD Gothic Neo", "Malgun Gothic", "Helvetica Neue", Arial, "Noto Color Emoji", "Segoe UI Emoji", sans-serif;
+    line-height: 1.8; color: var(--text); background: var(--bg);
   }
-  #buttons a:hover { background: #d0e4ff; }
+  h1 { margin: 0 0 6px; font-size: 22px; }
+  .sub { margin: 0 0 14px; color: var(--muted); font-size: 13px; }
+  #text { white-space: pre-wrap; font-size: 18px; }
+  .word {
+    cursor: pointer; padding: 2px 4px; border-radius: 6px;
+    transition: background .12s ease;
+  }
+  .word:hover { background: #eef4ff; }
+  .sel { background: #e0ecff; }
+  #panel {
+    position: fixed; left: 0; right: 0; bottom: 0;
+    border-top: 1px solid #e5e7eb; background: var(--panel);
+    padding: 12px 16px; box-shadow: 0 -6px 18px rgba(0,0,0,.06);
+  }
+  #panel .w { font-weight: 700; font-size: 18px; }
+  #defs { margin-top: 6px; }
+  #defs .def { padding: 4px 0; }
+  #meta { margin-top: 8px; font-size: 12px; color: var(--muted); }
+  .controls { display:flex; gap:8px; flex-wrap:wrap; margin: 10px 0 4px; }
+  .pill {
+    font-size: 12px; background:#eef2ff; color:#334155; border:1px solid #c7d2fe;
+    padding: 4px 8px; border-radius: 999px;
+  }
+  .small { font-size: 12px; color: var(--muted); }
+  .sep { color:#94a3b8; margin:0 6px; }
+  .footer { margin-top:10px; font-size:11px; color:#94a3b8; }
+  .hidden { display:none; }
 </style>
 </head>
 <body>
+  <h1>Эхлэл 1 — АБ2013</h1>
+  <p class="sub">단어를 탭하면 아래에 <strong>뜻</strong>이 바로 뜬다. (백엔드 없음·Wiktionary API만 사용, 로컬 캐시 24시간)</p>
 
-<h1>Эхлэл 1 - АБ2013</h1>
+  <div id="text"></div>
 
-<div id="text"></div>
-
-<div id="result" style="display:none;">
-  <div><strong>Сонгосон үг:</strong> <span id="selectedWord"></span></div>
-  <div id="buttons"></div>
-</div>
+  <div id="panel" class="hidden">
+    <div class="w" id="w"></div>
+    <div class="controls">
+      <span class="pill" id="pos"></span>
+      <span id="lemma" class="pill"></span>
+    </div>
+    <div id="defs"></div>
+    <div id="meta"></div>
+  </div>
 
 <script>
-// 본문 텍스트 (네가 준 1:1~31 전문)
+/* ------------------------- 본문 (에클 1:1–31) ------------------------- */
 const textData = `[1] Эхэнд Бурхан тэнгэр ба газрыг бүтээжээ. [2] Газар нь хэлбэржээгүй, хоосон төдийгүй оёоргүй гүний гадаргууд харанхуй бүрхэж, Бурханы Сүнс усны мандал дээгүүр элин хальж байлаа. [3] Тэгэхэд Бурхан —Гэрэл бий болтугай! гэж айлдсанд гэрэл бий болов. [4] Гэрэл сайн болсныг Бурхан харж, Бурхан гэрлийг харанхуйгаас салгажээ. [5] Бурхан гэрлийг өдөр гэж нэрлээд, харанхуйг шөнө гэж нэрлэлээ. Ийн үдэш болоод, өглөө болсон нь анхны өдөр. [6] Бурхан —Усны дундуур огторгуй байж, ийнхүү усыг уснаас салгатугай! гэж айлдав. [7] Бурхан ингэж огторгуйг бий болгоод, огторгуйн дээрх уснаас огторгуйн доорх усыг салгасанд ёсоор болов. [8] Бурхан огторгуйг тэнгэр гэж нэрлэжээ. Үдэш болоод, өглөө болсон нь хоёр дахь өдөр. [9] Бурхан —Тэнгэрийн доорх ус нэг дор хуримтлагдаж, ийн хуурай газар ил гартугай! гэсэнд ёсоор болжээ. [10] Бурхан хуурайг нь газар, хуримтлагдсан усыг нь далай гэж нэрлэв. Эдгээр нь сайн болсныг Бурхан харлаа. [11] Ингээд Бурхан —Газар нь ургамал ногоог буюу үрлэгч өвс ногоо, доторх үрээ газарт гөвдөг үр жимст модыг төрөл төрлөөр нь ургуултугай! гэж айлдсанд ёсоор болжээ. [12] Газар нь ийнхүү ургамал ногоог буюу үрлэгч өвс ногоо, доторх үрээ газарт гөвдөг үр жимст модыг төрөл төрлөөр нь гаргав. Эдгээр нь сайн болсныг Бурхан харлаа. [13] Үдэш болоод, өглөө болсон нь гурав дахь өдөр. [14] Тэгээд Бурхан —Өдрийг шөнөөс салгахын тулд тэнгэр огторгуйд гэрэлтүүлэгчид байх болтугай! Эдгээр нь тэмдэг, улирал, өдөр, жилийн тулд байг. [15] Тэнгэр огторгуйд гэрэлтүүлэгчид байж газар дэлхийг гийгүүлэг! гэж айлдсанд ёсоор болжээ. [16] Бурхан өдрийг захируулахаар нэг томхон гэрэлтүүлэгч, шөнийг захируулахаар арай багавтар гэрэлтүүлэгч, ийм хоёр том гэрэлтүүлэгчийг мөн оддыг бий болгов. [17] Бурхан тэдгээрээр газар дэлхийг гэрэлтүүлэхээр тэнгэр огторгуйд тавьсан нь [18] өдөр, шөнө хоёрыг захируулах бас гэрлийг харанхуйгаас салгахын тулд ажгуу. Эдгээр нь сайн болсныг Бурхан харлаа. [19] Үдэш болоод, өглөө болсон нь дөрөв дэх өдөр. [20] Бурхан —Шунган шумбагч амьд биетээр уснууд цалгилтугай, бас шувууд газар дэлхий дээгүүр, тэнгэр огторгуйн мандалд нистүгэй! гэж айлдав. [21] Ийнхүү Бурхан далай тэнгисийн аварга том амьтад ба уснаа шунган шумбагч амьд биетийг төрөл төрлөөр нь бас аливаа жигүүртэн шувуудыг төрөл төрлөөр нь бүтээв. Эдгээр нь сайн болсныг Бурхан харлаа. [22] Бурхан тэднийг ерөөн —Үржиж, олширцгоог! Далай тэнгисийн усанд дүүрцгээг! Шувууд ч газар дэлхийд олширцгоог! хэмээв. [23] Үдэш болоод, өглөө болсон нь тав дахь өдөр. [24] Бурхан —Газар дэлхий амьд биетийг төрөл төрлөөр нь буюу мал адгуус, мөлхөгчид, газрын зэрлэг амьтдыг төрөл төрлөөр нь гаргатугай! гэж айлдсанд ёсоор болжээ. [25] Бурхан ийнхүү газрын зэрлэг амьтдыг төрөл төрлөөр нь, мал адгуусыг төрөл төрлөөр нь, газраар мөлхөгч бүгдийг төрөл төрлөөр нь бий болгов. Эдгээр нь сайн болсныг Бурхан харлаа. [26] Тэгээд Бурхан —Бид дүр төрхийнхөө дагуу бидэнтэй адилхан хүнийг буй болгоё. Тэгээд тэднээр далайн загас, огторгуйн шувууд, мал адгуус, бүх газар дэлхий, газраар мөлхдөг мөлхөгч бүгдийг захируулъя гэж айлдав. [27] Ийнхүү Бурхан Өөрийнхөө дүр төрхөөр хүнийг бүтээж, Бурханы дүр төрхөөр бүтээхдээ эр эмээр нь бүтээжээ. [28] Бурхан тэднийг ерөөж —Үржиж, олширцгоог! Газар дэлхийг дүүргэж, түүнийг эзэмшицгээг! Далайн загас, огторгуйн шувууд хийгээд газар дээр хөлхөгч амьтан бүхнийг захирцгааг! гэв. [29] Бурхан —Үзэгтүн, газрын гадарга дээрх үрт өвс ногоо бүрийг, үрээ гөвдөг үр жимст мод бүгдийг Би та нарт өгнө. Тэр бүхэн та нарын хоол хүнс болно. [30] Газар дэлхийн зэрлэг амьтан бүхэнд, огторгуйн шувуу бүхэнд, газраар мөлхөгч бүхэнд, амьтай амьсгалтай бүхэнд өвс ногоо бүгдийг хоол хүнс болгож өгье гэсэнд ёсоор болжээ. [31] Өөрийнх нь буй болгосон бүгд нэн сайн болсныг Бурхан харлаа. Үдэш болоод, өглөө болсон нь зургаа дахь өдөр.`;
 
-// 단어 분리: 몽골어(키릴) 단어만 클릭 가능
-const container = document.getElementById("text");
-const tokens = textData.split(/(\s+)/);
-tokens.forEach(token => {
-  if (/[\u0400-\u04FF]+/.test(token)) {
-    const span = document.createElement("span");
-    span.textContent = token;
-    span.className = "word";
-    span.onclick = () => showResult(token);
-    container.appendChild(span);
-  } else {
-    container.appendChild(document.createTextNode(token));
-  }
-});
+/* ------------------------- 단어 토큰화/렌더 ------------------------- */
+const textEl = document.getElementById("text");
+const CYRILLIC = /[\u0400-\u04FF]/;
+const WORD_RE = /([\u0400-\u04FF]+)|(\s+|[^\u0400-\u04FF]+)/g;
 
-function showResult(word) {
-  document.getElementById("selectedWord").textContent = word;
-  const enc = encodeURIComponent(word);
-  const links = [
-    { name: "Bolor 사전", url: `https://www.bolor-toli.com/dictionary/word/${enc}` },
-    { name: "Wiktionary", url: `https://mn.wiktionary.org/wiki/${enc}` },
-    { name: "Glosbe", url: `https://glosbe.com/mn/ko/${enc}` },
-    { name: "Forvo 발음", url: `https://forvo.com/search/${enc}/mn/` }
-  ];
-  const btnDiv = document.getElementById("buttons");
-  btnDiv.innerHTML = "";
-  links.forEach(link => {
-    const a = document.createElement("a");
-    a.href = link.url;
-    a.target = "_blank";
-    a.textContent = link.name;
-    btnDiv.appendChild(a);
-  });
-  document.getElementById("result").style.display = "block";
+let currentSel = null;
+
+function renderText() {
+  const frag = document.createDocumentFragment();
+  const it = textData.matchAll(WORD_RE);
+  let idx = 0;
+  for (const m of it) {
+    const w = m[1];
+    const other = m[2];
+    if (w) {
+      const span = document.createElement("span");
+      span.textContent = w;
+      span.className = "word";
+      span.dataset.raw = w;
+      span.addEventListener("click", () => onWordClick(span));
+      frag.appendChild(span);
+    } else {
+      frag.appendChild(document.createTextNode(other));
+    }
+    idx++;
+  }
+  textEl.innerHTML = "";
+  textEl.appendChild(frag);
+}
+renderText();
+
+/* ------------------------- 조회 & 캐시 ------------------------- */
+const CACHE_HOURS = 24;
+
+function normalize(token){
+  // 앞뒤 구두점 제거 + 소문자화(키릴엔 영향 적음)
+  return token.replace(/^[—–\-–—.,!?;:()\\[\\]«»\"'“”‘’]+|[—–\-–—.,!?;:()\\[\\]«»\"'“”‘’]+$/g,"").trim();
+}
+
+async function onWordClick(el){
+  const word = normalize(el.dataset.raw || "");
+  if (!word || !CYRILLIC.test(word)) return;
+
+  // 선택 하이라이트
+  if (currentSel) currentSel.classList.remove("sel");
+  el.classList.add("sel");
+  currentSel = el;
+
+  // 캐시 hit?
+  const key = `mn:${word.toLowerCase()}`;
+  const cached = JSON.parse(localStorage.getItem(key) || "null");
+  if (cached && Date.now() - cached.t < CACHE_HOURS*3600*1000) {
+    return renderDefs(word, cached.data);
+  }
+  // 1) 몽골어 위키
+  let data = await fetchWikt(
+    `https://mn.wiktionary.org/w/api.php?action=parse&prop=text&page=${encodeURIComponent(word)}&format=json&origin=*`,
+    "Wiktionary (mn)",
+    `https://mn.wiktionary.org/wiki/${encodeURIComponent(word)}`
+  );
+  // 2) 못 찾으면 영어 위키의 Mongolian 섹션
+  if (!data || (data.senses||[]).length === 0) {
+    data = await fetchWikt(
+      `https://en.wiktionary.org/w/api.php?action=parse&prop=text&page=${encodeURIComponent(word)}&format=json&origin=*`,
+      "Wiktionary (en)#Mongolian",
+      `https://en.wiktionary.org/wiki/${encodeURIComponent(word)}#Mongolian`,
+      /*needMongolian=*/true
+    );
+  }
+  // 저장 & 렌더
+  localStorage.setItem(key, JSON.stringify({ t: Date.now(), data }));
+  renderDefs(word, data);
+}
+
+async function fetchWikt(apiUrl, sourceName, sourceUrl, needMongolian=false){
+  try{
+    const r = await fetch(apiUrl);
+    const j = await r.json();
+    const html = j?.parse?.text?.["*"] || "";
+    if (!html) return { lemmas:[], pos:null, senses:[], source:{name:sourceName,url:sourceUrl} };
+
+    // 섹션 선택(영문 위키는 Mongolian 섹션 기준)
+    let section = html;
+    if (needMongolian) {
+      const parts = html.split(/<span[^>]*id="Mongolian"[^>]*>/i);
+      section = parts[1] || html;
+    }
+
+    // POS 추정(간단)
+    let pos = null;
+    const posMatch = section.match(/<span class="mw-headline"[^>]*>(?:Noun|Verb|Adjective|Adverb|Pronoun|Numeral|Particle|Conjunction|Preposition)<\/span>/i);
+    if (posMatch) pos = posMatch[0].replace(/<[^>]+>/g, "");
+
+    // 정의 추출: <li> ... </li>
+    const senses = [...section.matchAll(/<li>(.*?)<\/li>/g)]
+      .map(m=>m[1].replace(/<[^>]+>/g,'').replace(/\s+/g,' ').trim())
+      .filter(s=>s && !/^See also|^Synonyms|^Antonyms|^Translations?/i.test(s))
+      .slice(0, 10);
+
+    // lemma(머리표제어) 가끔 제목으로 노출
+    const lemmas = [ (j?.parse?.title || "").trim() ].filter(Boolean);
+
+    return { lemmas, pos, senses, source:{name:sourceName, url:sourceUrl} };
+  }catch(e){
+    return { lemmas:[], pos:null, senses:[], source:{name:sourceName,url:sourceUrl}, error: String(e) };
+  }
+}
+
+/* ------------------------- 렌더 ------------------------- */
+const panelEl = document.getElementById("panel");
+const wEl = document.getElementById("w");
+const posEl = document.getElementById("pos");
+const lemmaEl = document.getElementById("lemma");
+const defsEl = document.getElementById("defs");
+const metaEl = document.getElementById("meta");
+
+function renderDefs(originalWord, payload){
+  panelEl.classList.remove("hidden");
+  const lemma = (payload?.lemmas && payload.lemmas[0]) || originalWord;
+
+  wEl.textContent = lemma;
+  posEl.textContent = payload?.pos || "";
+  posEl.style.display = payload?.pos ? "inline-block" : "none";
+  lemmaEl.textContent = (lemma && lemma !== originalWord) ? `원형: ${lemma}` : "";
+  lemmaEl.style.display = (lemma && lemma !== originalWord) ? "inline-block" : "none";
+
+  defsEl.innerHTML = (payload?.senses||[]).length
+    ? payload.senses.map(s=>`<div class="def">• ${escapeHtml(s)}</div>`).join("")
+    : `<div class="def">뜻을 못 찾았어 😢 (출처 페이지에서 직접 확인해봐)</div>`;
+
+  const src = payload?.source;
+  metaEl.innerHTML = src
+    ? `출처: <a href="${src.url}" target="_blank" rel="noopener">${escapeHtml(src.name)}</a> <span class="sep">·</span> 캐시: 24시간`
+    : `캐시: 24시간`;
+}
+
+function escapeHtml(s){
+  return s.replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;");
 }
 </script>
-
 </body>
 </html>
