@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="mn">
+<head>
+    <meta charset="UTF-8">
+    <title>몽골어 성경 단어 학습</title>
+    <style>
+        body { font-family: sans-serif; line-height: 1.6; max-width: 800px; margin: auto; }
+        .word { cursor: pointer; color: blue; }
+        .translation { margin-top: 20px; font-size: 18px; color: green; }
+    </style>
+</head>
+<body>
+    <h1>몽골어 성경 단어 학습</h1>
+    <p id="text"></p>
+    <div class="translation" id="translation">단어를 클릭하면 번역이 여기에 나옵니다.</div>
+
+    <script>
+        const apiKey = "AIzaSyB_XhA8_oD9TMmsbAzHhKpz7Unjr_0AwG0"; // Google Translation API Key
+
+        // 몽골어 창세기 1장 텍스트
+        const mongolianText = `
+Эхэнд Бурхан тэнгэр газрыг бүтээжээ. Газар нь ямар ч хэлбэр дүрсгүй, эзгүй хоосон, 
+гүний гадаргуу дээгүүр нь харанхуй бүрхэж, Бурханы Сүнс усны мандал дээгүүр элин хальж байлаа.
+        `;
+
+        // 텍스트를 단어로 나누고 클릭 가능하게 변환
+        const words = mongolianText.trim().split(/\s+/);
+        document.getElementById("text").innerHTML = words.map(w => `<span class="word">${w}</span>`).join(" ");
+
+        // 클릭 시 번역 호출
+        document.querySelectorAll(".word").forEach(wordElem => {
+            wordElem.addEventListener("click", async () => {
+                const word = wordElem.innerText;
+                try {
+                    const res = await fetch(`https://translation.googleapis.com/language/translate/v2?key=${apiKey}`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            q: word,
+                            source: "mn",
+                            target: "ko",
+                            format: "text"
+                        })
+                    });
+                    const data = await res.json();
+                    if (data.data && data.data.translations.length > 0) {
+                        document.getElementById("translation").innerText = `${word} → ${data.data.translations[0].translatedText}`;
+                    } else {
+                        document.getElementById("translation").innerText = "번역을 찾을 수 없습니다.";
+                    }
+                } catch (error) {
+                    console.error(error);
+                    document.getElementById("translation").innerText = "번역 오류 발생";
+                }
+            });
+        });
+    </script>
+</body>
+</html>
